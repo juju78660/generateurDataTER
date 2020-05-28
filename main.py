@@ -2,6 +2,49 @@ import json
 from datetime import date, timedelta
 from random import *
 
+# ********************************************************
+#                   CONFIGURATION                        *
+# ********************************************************
+
+# PERSONNE 'NORMALE'
+# LUMINOSITE EN %
+luminosite_moy = 65
+luminosite_ecart_normal = 20
+
+# TEMPERATURE EN DEGRES CELCIUS
+temperature_moy = 20
+temperature_ecart_normal = 3
+
+# MOUVEMENT EN PAS
+mouvement_moy = 10000
+mouvement_ecart_normal = 2000
+
+
+# ANXIEUX
+luminosite_ecart_anxieux = -30
+mouvement_ecart_anxieux = +5000
+
+# DEPRESSIF
+luminosite_ecart_depressif = -30
+mouvement_ecart_depressif = -4000
+
+
+# POURCENTAGE DE DONNEES EN DEHORS DE LA NORMALE
+# 0.05 -> 5%
+pourcentage_donnees_anormales = 0.1
+
+# PARAMETRE DE PROXIMITE (X DONNEES ANORMALES D'AFFILEE)
+nombre_donnees_anormales_proximite = 3
+
+
+# Date de depart
+day = 01
+month = 04
+year = 2020
+# ********************************************************
+
+
+
 # Source code: http://www.planet-libre.org/index.php?post_id=10399 ensuite modifie
 # Entree: Date
 # Sortie: Date decalee d'un jour
@@ -41,51 +84,12 @@ def choix_indice_valeurs_anormales():
     return liste_indices_val_anormale
 
 
-# Date de depart
-day = 01
-month = 04
-year = 2020
 d = date(year, month, day)
-
 
 data = {}
 
-# **************************#
-#       CONFIGURATION       #
-# **************************#
-
-# PERSONNE 'NORMALE'
-# LUMINOSITE EN %
-luminosite_min = 1
-luminosite_moy = 65
-luminosite_max = 100
-luminosite_ecart_normal = 20
-
-# TEMPERATURE EN DEGRES CELCIUS
-temperature_min = 1
-temperature_moy = 20
-temperature_max = 35
-temperature_ecart_normal = 3
-
-# MOUVEMENT EN PAS
-mouvement_moy = 10000
-mouvement_ecart_normal = 2000
-
-# ANXIEUX
-luminosite_ecart_anxieux = -30
-mouvement_ecart_anxieux = +5000
-
-# DEPRESSIF
-luminosite_ecart_depressif = -30
-mouvement_ecart_depressif = -4000
-
-# NOMBRE DE DONNEES EN DEHORS DE LA NORMALE
-# 0.05 -> 5%
-pourcentage_donnees_anormales = 0.1
-
-# PARAMETRE DE PROXIMITE (X DONNEES ANORMALES D'AFFILEE)
-nombre_donnees_anormales_proximite = 3
-
+luminosite_moy_anormale = 0
+mouvement_moy_anormal = 0
 
 
 nb_valeurs_a_generer = int(input("Merci d'entrer le nombre de donnees a generer : "))
@@ -93,12 +97,12 @@ choix_profil_personne = int(input("Merci de choisir un profil parmi ceux-ci:\n  
 if(choix_profil_personne == 1): # NORMAL
     print("Donnees generees pour une personne normale")
 elif(choix_profil_personne == 2): # ANXIEUX
-    luminosite_moy += luminosite_ecart_anxieux
-    mouvement_moy += mouvement_ecart_anxieux
+    luminosite_moy_anormale = luminosite_moy + luminosite_ecart_anxieux
+    mouvement_moy_anormal = mouvement_moy + mouvement_ecart_anxieux
     print("Donnees generees pour une personne anxieuse")
 elif (choix_profil_personne == 3): # DEPRESSIF
-    luminosite_moy += luminosite_ecart_depressif
-    mouvement_moy += mouvement_ecart_depressif
+    luminosite_moy_anormale = luminosite_moy +luminosite_ecart_depressif
+    mouvement_moy_anormal = mouvement_moy + mouvement_ecart_depressif
     print("Donnees generees pour une personne depressive")
 else:
     print("MERCI DE CHOISIR 1 2 ou 3")
@@ -118,8 +122,8 @@ while i <= nb_valeurs_a_generer:        # TANT QUE LE NOMBRE DE DONNEES GENEREES
     data[date] = []
     if(i in liste_indices_val_anormales):   # SI LA VALEUR QUI VA ETRE AJOUTEE EST UNE VALEUR ANORMALE
         temperature = randint(temperature_moy - temperature_ecart_normal,temperature_moy + temperature_ecart_normal)
-        luminosite = randint(luminosite_moy - luminosite_ecart_normal, luminosite_moy + luminosite_ecart_normal)
-        mouvement = randint(mouvement_moy - mouvement_ecart_normal, mouvement_moy + mouvement_ecart_normal)
+        luminosite = randint(luminosite_moy_anormale - luminosite_ecart_normal, luminosite_moy_anormale + luminosite_ecart_normal)
+        mouvement = randint(mouvement_moy_anormal - mouvement_ecart_normal, mouvement_moy_anormal + mouvement_ecart_normal)
         print("Valeur anormale: " + str(date) + ":{Temperature: " + str(temperature)  + " - Luminosite: " + str(luminosite) + " - Mouvement: " + str(mouvement) + "}")
 
     else:                                   # SI LA VALEUR N'EST PAS ANORMALE
@@ -127,11 +131,12 @@ while i <= nb_valeurs_a_generer:        # TANT QUE LE NOMBRE DE DONNEES GENEREES
         luminosite = randint(luminosite_moy - luminosite_ecart_normal, luminosite_moy + luminosite_ecart_normal)
         mouvement = randint(mouvement_moy - mouvement_ecart_normal, mouvement_moy + mouvement_ecart_normal)
 
+
     data[date].append({
-        'temperature': temperature,
-        'luminosite': luminosite,
-        'mouvement': mouvement
-    })
+            'temperature': temperature,
+            'luminosite': luminosite,
+            'mouvement': mouvement
+        })
     i = i+1
 
 # ECRIS L'ENSEMBLE DES DONNEES GENEREES DANS LE FICHIER DATA.JSON
